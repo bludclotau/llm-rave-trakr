@@ -107,8 +107,9 @@ async function post(url, body) {
 
 async function liveServer() {
   const drums = await post(`${live}/api/compose`, { prompt: "dusty boom bap", local: true });
-  assert(drums.status === 200 && drums.json.channels === 8, "drum compose stays 8 channels");
-  assert(drums.json.patterns[0].data.length === 8, "drum pattern width 8");
+  assert(drums.status === 200 && drums.json.channels === 10, "drum compose is 8 drums plus 2 vocal columns");
+  assert(drums.json.patterns[0].data.length === 10, "drum pattern width 10");
+  assert(drums.json.voxChannels === 2, "two vocal columns");
   assert(drums.json.tracks.kick === "x...x...x..x.x..", "boom bap kick");
   assert(!drums.json.instruments, "drum song has no instrument table");
 

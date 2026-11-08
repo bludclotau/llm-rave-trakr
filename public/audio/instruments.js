@@ -11,8 +11,9 @@
 import { normalizeSampleResponse } from "./sample-response.js";
 import { normalizeEuclid } from "./euclid.js";
 import { normalizeUserSamples } from "./user-samples.js";
+import { DRUM_CHANNELS, voxCount } from "./channels.js";
 
-export const SONG_VERSION = 2;
+export const SONG_VERSION = 3;
 
 export function channelSampler(song, ch) {
   const table = song?.channelSampler;
@@ -175,7 +176,8 @@ export function migrateSong(song, catalog) {
   if (!song.channelSampler || typeof song.channelSampler !== "object" || Array.isArray(song.channelSampler)) {
     song.channelSampler = {};
   }
-  for (let ch = 0; ch < 8; ch++) {
+  const sampleChannels = DRUM_CHANNELS + voxCount(song);
+  for (let ch = 0; ch < sampleChannels; ch++) {
     song.channelSampler[ch] = normalizeSampleResponse(song.channelSampler[ch] ?? song.channelSampler[String(ch)]);
   }
   return song;

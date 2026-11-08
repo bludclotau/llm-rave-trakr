@@ -57,6 +57,10 @@ export class SampleVoice {
     this.pan = 0;
     /** GCD-8 per-channel sampler. Null is the unchanged drum hit. */
     this.response = null;
+    /** Index gain trim. 1 leaves the hit at cell velocity. */
+    this.gainTrim = 1;
+    /** Leading silence, in seconds, skipped so the transient is on the row. */
+    this.skipSec = 0;
     this.current = null;
   }
 
@@ -69,9 +73,19 @@ export class SampleVoice {
     src.playbackRate.value = rate;
     const plain = isPlainResponse(this.response);
     const shaped = plain ? null : shapeSampleHit(this.response, velocity, this.buffer.duration, rate);
-    if (shaped && shaped.bufferPlay <= 0) return;
+    const skip = Math.min(
+      Math.max(0, Number(this.skipSec) || 0),
+      Math.max(0, this.buffer.duration - 0.005),
+    );
+    if (shaped) {
+      shaped.offsetSec = Math.min(this.buffer.duration, shaped.offsetSec + skip);
+      shaped.bufferPlay = Math.max(0, Math.min(shaped.bufferPlay, this.buffer.duration - shaped.offsetSec));
+      if (shaped.bufferPlay <= 0) return;
+    }
+    const trim = Number(this.gainTrim);
+    const gainTrim = Number.isFinite(trim) && trim > 0 ? trim : 1;
     const gain = this.ctx.createGain();
-    const level = plain ? Number(velocity) : shaped.gain;
+    const level = (plain ? Number(velocity) : shaped.gain) * gainTrim;
     if (!plain && shaped.useEnvelope) scheduleEnvelope(gain.gain, time, shaped);
     else gain.gain.setValueAtTime(level, time);
     let head = src;
@@ -94,8 +108,10 @@ export class SampleVoice {
       tail = panner;
     }
     tail.connect(this.destination);
-    if (plain) src.start(time);
-    else src.start(time, shaped.offsetSec, shaped.bufferPlay);
+    if (plain) {
+      if (skip > 0.0001) src.start(time, skip);
+      else src.start(time);
+    } else src.start(time, shaped.offsetSec, shaped.bufferPlay);
     if (shaped?.useEnvelope && shaped.envelopeLen > 0) src.stop(time + shaped.envelopeLen);
     const token = { src, gain, panner, filter };
     this.current = token;

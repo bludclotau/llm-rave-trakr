@@ -71,7 +71,7 @@ const song = bareSong();
 song.instruments = [{ id: "fm-lead", type: "fm", preset: "lead", name: "Lead" }];
 song.channelFx = { 8: { cutoff: 3400, resonance: 1.2, drive: 0, fxWet: 0 } };
 migrateSong(song, catalog);
-assert(song.version === SONG_VERSION, "catalog bumps version to 2");
+assert(song.version === SONG_VERSION, "catalog bumps the song version");
 assert(song.instruments[0].id === "fm-lead", "fm instrument stays");
 const samples = song.instruments.filter((item) => item.type === "sample");
 assert(samples.length === 3, "one sample instrument per file");
