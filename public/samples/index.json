@@ -1,0 +1,1314 @@
+{
+  "files": {
+    "808s/wavbvkery - dreams 808 - 01 - (c).wav": {
+      "duration": 1.292,
+      "peak": 1,
+      "rms": 0.4934,
+      "gain": 0.89,
+      "offset": 0.0005,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 02 - (c).wav": {
+      "duration": 1.4008,
+      "peak": 1,
+      "rms": 0.433,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 03 - (c).wav": {
+      "duration": 6,
+      "peak": 1,
+      "rms": 0.4004,
+      "gain": 0.89,
+      "offset": 0.0026,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 04 - (c).wav": {
+      "duration": 2,
+      "peak": 0.9973,
+      "rms": 0.3327,
+      "gain": 0.8924,
+      "offset": 0.0021,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 05 - (c).wav": {
+      "duration": 4,
+      "peak": 1,
+      "rms": 0.1842,
+      "gain": 0.89,
+      "offset": 0.0031,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 06 - (c).wav": {
+      "duration": 1.9705,
+      "peak": 0.9961,
+      "rms": 0.3114,
+      "gain": 0.8935,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 07 - (c).wav": {
+      "duration": 2.8178,
+      "peak": 0.9961,
+      "rms": 0.3878,
+      "gain": 0.8935,
+      "offset": 0.0005,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 08 - (c).wav": {
+      "duration": 4,
+      "peak": 1,
+      "rms": 0.4806,
+      "gain": 0.89,
+      "offset": 0.0062,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 09 - (c).wav": {
+      "duration": 4,
+      "peak": 1,
+      "rms": 0.3594,
+      "gain": 0.89,
+      "offset": 0.001,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "808s/wavbvkery - dreams 808 - 10 - (c).wav": {
+      "duration": 4,
+      "peak": 1,
+      "rms": 0.3276,
+      "gain": 0.89,
+      "offset": 0.001,
+      "brightness": 11025,
+      "pitch": 400.9091,
+      "role": "bass",
+      "tags": [
+        "808s"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 01.wav": {
+      "duration": 0.4615,
+      "peak": 0.9518,
+      "rms": 0.1024,
+      "gain": 0.935,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 02.wav": {
+      "duration": 0.1486,
+      "peak": 0.9974,
+      "rms": 0.2911,
+      "gain": 0.8923,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 03.wav": {
+      "duration": 0.134,
+      "peak": 0.9999,
+      "rms": 0.2087,
+      "gain": 0.8901,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 04.wav": {
+      "duration": 0.2308,
+      "peak": 1,
+      "rms": 0.2294,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 05.wav": {
+      "duration": 0.2308,
+      "peak": 0.9562,
+      "rms": 0.2003,
+      "gain": 0.9307,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 06.wav": {
+      "duration": 0.1154,
+      "peak": 0.9643,
+      "rms": 0.2389,
+      "gain": 0.9229,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 07.wav": {
+      "duration": 0.1,
+      "peak": 0.9776,
+      "rms": 0.2429,
+      "gain": 0.9103,
+      "offset": 0.001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 08.wav": {
+      "duration": 0.1154,
+      "peak": 1,
+      "rms": 0.2397,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 09.wav": {
+      "duration": 0.1,
+      "peak": 1,
+      "rms": 0.2926,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "claps/wavbvkery - dreams clap 10.wav": {
+      "duration": 0.1154,
+      "peak": 1,
+      "rms": 0.2782,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "clap",
+      "tags": [
+        "claps",
+        "clap"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 01.wav": {
+      "duration": 2.1366,
+      "peak": 0.4412,
+      "rms": 0.0339,
+      "gain": 2.0173,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 02.wav": {
+      "duration": 3.3473,
+      "peak": 0.746,
+      "rms": 0.0669,
+      "gain": 1.1931,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 03.wav": {
+      "duration": 0.9231,
+      "peak": 0.9377,
+      "rms": 0.1184,
+      "gain": 0.9491,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 04.wav": {
+      "duration": 2.7693,
+      "peak": 0.8118,
+      "rms": 0.0734,
+      "gain": 1.0963,
+      "offset": 0.0011,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 05.wav": {
+      "duration": 4.8,
+      "peak": 0.9035,
+      "rms": 0.0737,
+      "gain": 0.985,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 06.wav": {
+      "duration": 2.1473,
+      "peak": 0.9868,
+      "rms": 0.074,
+      "gain": 0.9019,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 07.wav": {
+      "duration": 5.6,
+      "peak": 0.8052,
+      "rms": 0.0588,
+      "gain": 1.1053,
+      "offset": 0.0046,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 08.wav": {
+      "duration": 4,
+      "peak": 0.7478,
+      "rms": 0.0569,
+      "gain": 1.1902,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 09.wav": {
+      "duration": 3.2,
+      "peak": 0.9746,
+      "rms": 0.0784,
+      "gain": 0.9132,
+      "offset": 0.0051,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/crashes/wavbvkery - dreams crash 10.wav": {
+      "duration": 3.2,
+      "peak": 0.8474,
+      "rms": 0.0744,
+      "gain": 1.0503,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "crash",
+      "tags": [
+        "cymbals",
+        "crashes",
+        "crash"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 01.wav": {
+      "duration": 0.6923,
+      "peak": 1,
+      "rms": 0.0589,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 02.wav": {
+      "duration": 0.1801,
+      "peak": 0.9878,
+      "rms": 0.1295,
+      "gain": 0.901,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 03.wav": {
+      "duration": 0.4,
+      "peak": 1,
+      "rms": 0.0658,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 04.wav": {
+      "duration": 0.1268,
+      "peak": 1,
+      "rms": 0.1735,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 05.wav": {
+      "duration": 0.2308,
+      "peak": 1,
+      "rms": 0.1363,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 06.wav": {
+      "duration": 0.2308,
+      "peak": 0.9997,
+      "rms": 0.0898,
+      "gain": 0.8903,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 07.wav": {
+      "duration": 0.2308,
+      "peak": 0.9619,
+      "rms": 0.0627,
+      "gain": 0.9253,
+      "offset": 0.0005,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 08.wav": {
+      "duration": 0.4,
+      "peak": 0.8187,
+      "rms": 0.0449,
+      "gain": 1.0871,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 09.wav": {
+      "duration": 0.4,
+      "peak": 1,
+      "rms": 0.0758,
+      "gain": 0.89,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats closed/wavbvkery - dreams closed hat 10.wav": {
+      "duration": 0.2308,
+      "peak": 0.6834,
+      "rms": 0.0316,
+      "gain": 1.3023,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "hat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "closed",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 01.wav": {
+      "duration": 0.2,
+      "peak": 0.9995,
+      "rms": 0.1933,
+      "gain": 0.8904,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 02.wav": {
+      "duration": 0.2373,
+      "peak": 0.9585,
+      "rms": 0.2083,
+      "gain": 0.9286,
+      "offset": 0.0013,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 03.wav": {
+      "duration": 0.2296,
+      "peak": 0.9112,
+      "rms": 0.2436,
+      "gain": 0.9768,
+      "offset": 0.0027,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 04.wav": {
+      "duration": 0.3462,
+      "peak": 0.9665,
+      "rms": 0.1628,
+      "gain": 0.9208,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 05.wav": {
+      "duration": 0.3273,
+      "peak": 0.8739,
+      "rms": 0.1524,
+      "gain": 1.0184,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 06.wav": {
+      "duration": 0.4,
+      "peak": 0.4066,
+      "rms": 0.0805,
+      "gain": 2.189,
+      "offset": 0.002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 07.wav": {
+      "duration": 0.2,
+      "peak": 0.2595,
+      "rms": 0.0576,
+      "gain": 3.4299,
+      "offset": 0.0005,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 08.wav": {
+      "duration": 0.348,
+      "peak": 1,
+      "rms": 0.192,
+      "gain": 0.89,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 09.wav": {
+      "duration": 2.1839,
+      "peak": 0.9761,
+      "rms": 0.0764,
+      "gain": 0.9118,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/hats open/wavbvkery - dreams open hat 10.wav": {
+      "duration": 0.9231,
+      "peak": 0.7864,
+      "rms": 0.0993,
+      "gain": 1.1317,
+      "offset": 0.0012,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "openhat",
+      "tags": [
+        "cymbals",
+        "hats",
+        "open",
+        "hat"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 01.wav": {
+      "duration": 1.6,
+      "peak": 0.9525,
+      "rms": 0.0639,
+      "gain": 0.9344,
+      "offset": 0.0005,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 02.wav": {
+      "duration": 0.3916,
+      "peak": 0.8165,
+      "rms": 0.0597,
+      "gain": 1.0901,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 03.wav": {
+      "duration": 1.3468,
+      "peak": 0.9998,
+      "rms": 0.0454,
+      "gain": 0.8902,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 04.wav": {
+      "duration": 0.4497,
+      "peak": 1,
+      "rms": 0.0725,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 05.wav": {
+      "duration": 1.2468,
+      "peak": 0.695,
+      "rms": 0.0466,
+      "gain": 1.2805,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 06.wav": {
+      "duration": 0.9699,
+      "peak": 0.9695,
+      "rms": 0.0825,
+      "gain": 0.918,
+      "offset": 0.0007,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 07.wav": {
+      "duration": 2.4,
+      "peak": 0.761,
+      "rms": 0.0577,
+      "gain": 1.1695,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 08.wav": {
+      "duration": 0.8,
+      "peak": 0.8124,
+      "rms": 0.0614,
+      "gain": 1.0955,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 09.wav": {
+      "duration": 2.4,
+      "peak": 1,
+      "rms": 0.0331,
+      "gain": 0.89,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "cymbals/rides/wavbvkery - dreams ride 10.wav": {
+      "duration": 1.5472,
+      "peak": 0.8714,
+      "rms": 0.0669,
+      "gain": 1.0214,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "ride",
+      "tags": [
+        "cymbals",
+        "rides",
+        "ride"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 01.wav": {
+      "duration": 0.1198,
+      "peak": 1,
+      "rms": 0.5616,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 02.wav": {
+      "duration": 0.2036,
+      "peak": 0.9986,
+      "rms": 0.5044,
+      "gain": 0.8913,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 03.wav": {
+      "duration": 0.178,
+      "peak": 1,
+      "rms": 0.4631,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 04.wav": {
+      "duration": 0.182,
+      "peak": 1,
+      "rms": 0.3789,
+      "gain": 0.89,
+      "offset": 0.0012,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 05.wav": {
+      "duration": 0.1621,
+      "peak": 1,
+      "rms": 0.54,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 06.wav": {
+      "duration": 0.1144,
+      "peak": 1,
+      "rms": 0.4968,
+      "gain": 0.89,
+      "offset": 0.0007,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 07.wav": {
+      "duration": 0.14,
+      "peak": 1,
+      "rms": 0.428,
+      "gain": 0.89,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 08.wav": {
+      "duration": 0.15,
+      "peak": 1,
+      "rms": 0.4475,
+      "gain": 0.89,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 09.wav": {
+      "duration": 0.1154,
+      "peak": 0.989,
+      "rms": 0.4842,
+      "gain": 0.8999,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "kicks/wavbvkery - dreams kick 10.wav": {
+      "duration": 0.1417,
+      "peak": 1,
+      "rms": 0.5326,
+      "gain": 0.89,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "kick",
+      "tags": [
+        "kicks",
+        "kick"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 01.wav": {
+      "duration": 0.15,
+      "peak": 1,
+      "rms": 0.0885,
+      "gain": 0.89,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 02.wav": {
+      "duration": 0.2308,
+      "peak": 0.7603,
+      "rms": 0.0748,
+      "gain": 1.1706,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 03.wav": {
+      "duration": 0.2308,
+      "peak": 0.891,
+      "rms": 0.0842,
+      "gain": 0.9988,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 04.wav": {
+      "duration": 0.4,
+      "peak": 0.9999,
+      "rms": 0.1151,
+      "gain": 0.8901,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 05.wav": {
+      "duration": 0.4956,
+      "peak": 0.8869,
+      "rms": 0.1133,
+      "gain": 1.0035,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 06.wav": {
+      "duration": 0.4615,
+      "peak": 0.9723,
+      "rms": 0.1594,
+      "gain": 0.9154,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 07.wav": {
+      "duration": 0.2,
+      "peak": 0.669,
+      "rms": 0.1289,
+      "gain": 1.3304,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 08.wav": {
+      "duration": 3.0703,
+      "peak": 0.3568,
+      "rms": 0.0256,
+      "gain": 2.4941,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 09.wav": {
+      "duration": 0.2,
+      "peak": 0.8061,
+      "rms": 0.0863,
+      "gain": 1.1041,
+      "offset": 0.0006,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "percs/wavbvkery - dreams perc 10.wav": {
+      "duration": 0.2,
+      "peak": 0.999,
+      "rms": 0.146,
+      "gain": 0.8909,
+      "offset": 0.0006,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "perc",
+      "tags": [
+        "percs",
+        "perc"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 01.wav": {
+      "duration": 0.1,
+      "peak": 0.9998,
+      "rms": 0.28,
+      "gain": 0.8902,
+      "offset": 0.0003,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 02.wav": {
+      "duration": 0.2,
+      "peak": 1,
+      "rms": 0.1362,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 03.wav": {
+      "duration": 0.1154,
+      "peak": 1,
+      "rms": 0.2276,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 04.wav": {
+      "duration": 0.2308,
+      "peak": 1,
+      "rms": 0.1181,
+      "gain": 0.89,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 05.wav": {
+      "duration": 0.1,
+      "peak": 0.9999,
+      "rms": 0.2697,
+      "gain": 0.8901,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 06.wav": {
+      "duration": 0.1946,
+      "peak": 0.9998,
+      "rms": 0.1887,
+      "gain": 0.8902,
+      "offset": 0.0004,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 07.wav": {
+      "duration": 0.2,
+      "peak": 0.9999,
+      "rms": 0.172,
+      "gain": 0.8901,
+      "offset": 0.0002,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 08.wav": {
+      "duration": 0.1154,
+      "peak": 1,
+      "rms": 0.1512,
+      "gain": 0.89,
+      "offset": 0,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 09.wav": {
+      "duration": 0.1154,
+      "peak": 1,
+      "rms": 0.2417,
+      "gain": 0.89,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    },
+    "snares/wavbvkery - dreams snare 10.wav": {
+      "duration": 0.1154,
+      "peak": 0.9999,
+      "rms": 0.2397,
+      "gain": 0.8901,
+      "offset": 0.0001,
+      "brightness": 11025,
+      "pitch": null,
+      "role": "snare",
+      "tags": [
+        "snares",
+        "snare"
+      ]
+    }
+  }
+}

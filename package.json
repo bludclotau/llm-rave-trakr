@@ -1,14 +1,19 @@
 {
-  "name": "mod-tracker-llm",
+  "name": "llm-rave-trakr",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Classic web MOD tracker. llama.cpp composes patterns from the ESS drum kit.",
+  "description": "Web tracker. llama.cpp places kit samples and vocal one-shots.",
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
+    "index-samples": "node scripts/index-samples.mjs",
+    "import-vox": "node scripts/import-vox.mjs",
     "check:sampler": "node scripts/verify-sample-response.mjs",
-    "check:euclid": "node scripts/verify-euclid.mjs"
+    "check:euclid": "node scripts/verify-euclid.mjs",
+    "check:instruments": "node scripts/verify-instruments.mjs",
+    "check:layer": "node scripts/verify-layer.mjs",
+    "check:library": "node scripts/verify-library.mjs"
   },
   "engines": {
     "node": ">=18"

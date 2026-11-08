@@ -1,8 +1,10 @@
-# MOD Tracker LLM
+# LLM Rave Trakr
 
-Classic tracker for arranging drum samples in the browser. **Dolphin** on the
-llama.cpp node at `10.1.1.122:8082` turns a text prompt into a 16-step pattern
-using the wavbvkery *dreams* kit copied from `ess-eleven-hundred`.
+Web tracker for arranging drum samples and vocal one-shots in the browser.
+**Dolphin** on the llama.cpp node at `10.1.1.122:8082` turns a text prompt
+into a 16-step pattern. The drum kit is the wavbvkery *dreams* pack copied
+from `ess-eleven-hundred`. Vocal one-shots, when imported, come from the
+CyberRave word factory.
 
 ## Run
 
@@ -14,10 +16,18 @@ Open http://127.0.0.1:3840
 
 ## Compose
 
-Type a prompt (`dusty boom bap at 90bpm`) and hit **COMPOSE**. The server calls
-Dolphin (`/v1/chat/completions`) with a GBNF grammar so the model returns kit
-variant numbers plus `x....` hit strings. Those expand onto eight tracker
-channels:
+Type a prompt (`dusty boom bap at 90bpm`) and hit **COMPOSE**. The server
+pre-filters the sample index by the prompt, sends Dolphin a short digest
+(id, name, tags, duration, brightness), and constrains the reply with a GBNF
+grammar. Each drum channel can return a sample id from that list, a 16-step
+string (`X` accent, `x` normal, `o` ghost, `.` rest) or euclid settings, and
+one preset name: `tight`, `soft`, `long`, or `lofi`. The model may also
+return up to eight vocal placements (`sample`, `row`, `note`, `volume`).
+Ids outside the candidate list are clamped. An empty kick or snare falls
+back to the genre template. The result is always playable.
+
+A compose writes ten columns. FM layers, if you add them afterwards, start
+after the vocal columns.
 
 | CH | role |
 |----|------|
@@ -29,10 +39,20 @@ channels:
 | 6 | perc |
 | 7 | crash |
 | 8 | 808 bass |
+| 9 | vocal one-shot |
+| 10 | vocal one-shot |
+
+`C-4` on a vocal column is the recorded pitch. The cell note changes
+`playbackRate`. Vocal columns are not in the hat mute group and are not cut
+by other channels. An old song has no `voxChannels`, so its first FM layer
+stays on column 9.
 
 **PRESET** skips the LLM and loads a local genre template from the prompt
-keywords (boom-bap, trap, house, dnb, breakbeat, lofi, techno). That replaces
-the whole song, including any FM layer.
+keywords (boom-bap, trap, house, dnb, breakbeat, lofi, techno). `phonk`
+uses the trap template and `rave` uses techno. That replaces the drum
+pattern. User samples and imported vocals stay in the library. The template
+still picks kit samples from the index and applies a sampler preset, so hat
+and perc hits are not a single flat velocity.
 
 ## Layer mode
 
@@ -154,12 +174,14 @@ samples.
 
 ## Project file
 
-**SAVE** downloads the song as JSON with `version: 2`. **LOAD** reads it back,
-including a missing version or version 1. The file includes `instruments`,
-`channelInstrument`, `layers` (including mute), `channelFx`, and the extra
-pattern columns. A drum song with eight columns and no version still loads
-and plays. The compose HTTP response has no `instruments` key. The page adds
-sample instruments after the catalog loads.
+**SAVE** downloads the song as JSON with `version: 3`. **LOAD** reads it back,
+including a missing version, version 1, or version 2. `migrateSong` bumps a
+catalog-backed song to version 3 and does not rewrite `cell.sample`. The
+file includes `instruments`, `channelInstrument`, `layers` (including mute),
+`channelFx`, `channelSampler`, `channelEuclid`, `userSamples`, `voxChannels`,
+and the extra pattern columns. A drum song with eight columns and no version
+still loads and plays. The compose HTTP response has no `instruments` key.
+The page adds sample instruments after the catalog loads.
 
 ## Playback
 
@@ -195,7 +217,7 @@ drum playback is unchanged until a GCD-8 sampler slider moves.
 
 ## GCD-8 sampler
 
-Each drum channel has the sample response from `gcd8-pd` (`gcd8.sampler~`).
+Each drum channel, and each vocal channel, has the sample response from `gcd8-pd` (`gcd8.sampler~`).
 The sliders are under **GCD-8 SAMPLER** and follow the selected channel.
 They are stored on `song.channelSampler` and round-trip through **SAVE** /
 **LOAD**. A song with no `channelSampler` loads the identity settings, so
@@ -223,17 +245,19 @@ channel's response. `node scripts/verify-sample-response.mjs` checks the curves.
 
 ## Loading your own samples
 
-**LOAD**, **CLEAR**, and **STOP** sit on the GCD-8 sampler strip and act on the selected drum channel, like the buttons on `gcd8.sampler~`.
+**LOAD**, **CLEAR**, and **STOP** sit on the GCD-8 sampler strip and act on the selected sample channel (a drum column or a vocal column), like the buttons on `gcd8.sampler~`.
 
-- **LOAD** takes any file the browser can decode (WAV, AIFF, FLAC, OGG, MP3), up to 8 MB. It joins the sample list under an id of 1000 or more, becomes the channel's kit sample, and every hit already on that channel switches to it. It is also auditioned through the channel's sampler response. Rests, note-offs, and other channels are untouched.
-- **CLEAR** puts the channel back on the kit sample it used before the load. A hit with no kit sample to return to is emptied. A user sample that nothing uses any more is dropped.
+- **LOAD** takes any file the browser can decode (WAV, AIFF, FLAC, OGG, MP3), up to 8 MB. When the tracker server is up it `POST`s the bytes to `/api/samples/upload`, which writes them under `public/samples/user/` and stores a file reference on `song.userSamples`. If that upload is refused, the file is still kept as base64 inside the project. It becomes the channel's kit sample, and every hit already on that channel switches to it. It is also auditioned through the channel's sampler response. Rests, note-offs, and other channels are untouched.
+- **CLEAR** puts the channel back on the kit sample it used before the load. A hit with no kit sample to return to is emptied. A user sample that nothing uses any more is dropped from the song. An uploaded file is left on disk.
 - **STOP** fades out the selected channel's voice (10 ms). It also stops a sample audition when the pattern is not running.
 
-A loaded file is stored inside the project JSON as base64, so **SAVE** / **LOAD** carries it (`song.userSamples`, each with `id`, `name`, `mime`, `data`, `role`, `fallback`). A project with two or three long samples can be several MB. `cell.sample` stays a number, so the pattern, the hat mute group, and the sampler sliders all work unchanged. **PRESET** and **COMPOSE** replace the whole song, so loaded samples go with it.
+`cell.sample` stays a number. The hat mute group and the sampler sliders are unchanged. **PRESET** and **COMPOSE** replace the pattern and keep library entries the new song does not own, including embedded user samples and vocals. Projects that already store base64 still load.
+
+**RESCAN** calls `POST /api/samples/rescan`. New files under `public/samples` appear without a restart. An id already assigned to a path does not move. `GET /api/library` is the compact digest of the same catalog.
 
 ## Euclidean sequencer
 
-The **GCD-8 EUCLID** strip is the base-pattern section of `gcd8.seq` for the selected drum channel. **GENERATE** writes the cycle onto the channel's rows.
+The **GCD-8 EUCLID** strip is the base-pattern section of `gcd8.seq` for the selected sample channel. **GENERATE** writes the cycle onto the channel's rows.
 
 | field | range | meaning                                                                      |
 |-------|-------|------------------------------------------------------------------------------|
@@ -362,7 +386,25 @@ Override with `LLAMA_URL` / `LLAMA_URL_2`. If both llama.cpp nodes fail and
 ## Samples
 
 90 WAVs from `ess-eleven-hundred/samples` (wavbvkery dreams). Third-party audio;
-the tracker code is separate from that pack.
+the tracker code is separate from that pack. `node scripts/index-samples.mjs`
+writes `public/samples/index.json` (duration, peak, RMS, gain trim, leading
+silence, brightness, a rough pitch for bass, and filename tags). Playback
+applies the gain trim and skips the leading silence. `public/samples/ids.json`
+keeps catalog ids stable across a rescan.
+
+## Vocal one-shots
+
+The CyberRave word factory stores rendered words in Postgres and already
+exports them:
+
+```sh
+wordfactory export-manifest --format json --review kept --output samples.json
+node scripts/import-vox.mjs --manifest samples.json --audio-root /path/to/wavs
+```
+
+The JSON is an array of `{ word, treatment, file_path, duration_sec, sample_rate, channels, peak_dbfs, loudness_lufs, bark_seed, review_status, created_at }`. CSV with that header works too. The importer writes 16-bit mono WAV at 44.1 kHz or 48 kHz into `public/samples/vox/`, trims silence, and peaks each file to the kit. Filenames are `001_whisper.wav`. The word stays in `public/samples/vox/index.json` (`role`, `word`, `treatment`, `tags`, `duration`, `pitch`, `offset`). That directory is gitignored. The tracker does not open Postgres.
+
+A haunting or phonk prompt prefers whisper and bit-crush treatments. Placements are sparse: the template puts at most two, on a downbeat or the last row. The model is told not to write a lyric. Words come from the factory list only.
 
 ## Check the layer
 
@@ -394,5 +436,16 @@ That checks migration, file remap, and channel FX defaults. In the browser,
 **PRESET** a beat, press **PLAY**, and the drum samples still start. Select
 the bass column, set **CH INST** to FM Bass, press **PLAY**: the kick still
 plays its sample and the bass column plays FM at the written pitch (`C-1`
-on the drum templates). **SAVE** writes `version: 2` and a sample instrument
-for each kit file. `cell.sample` on those drum cells is unchanged.
+on a drum template whose bass sample has no measured pitch). **SAVE** writes
+`version: 3` and a sample instrument for each kit file. `cell.sample` on
+those drum cells is unchanged.
+
+## Check the library
+
+```sh
+node scripts/verify-library.mjs
+```
+
+That checks gain trim, leading-silence offset, filename tags, id stability
+across a rescan, candidate clamping, and the repair step. The model is not
+called.

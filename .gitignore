@@ -1,4 +1,6 @@
 node_modules/
+public/samples/vox/
+public/samples/user/
 .env
 *.log
 tracker.txt
