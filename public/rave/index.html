@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAVE DECK</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23160a22'/%3E%3Crect x='2' y='2' width='5' height='12' fill='%23ff2bd6'/%3E%3Crect x='9' y='6' width='5' height='8' fill='%233de0c5'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/rave/rave.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="top">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div>
+          <h1>RAVE DECK</h1>
+          <p class="tag">sample kit · word factory lyrics</p>
+        </div>
+      </div>
+      <div class="transport">
+        <button id="btn-play" type="button">PLAY</button>
+        <button id="btn-stop" type="button">STOP</button>
+        <label>BPM <input id="bpm" type="number" min="60" max="200" value="128" /></label>
+        <label class="vol">VOL <input id="master" type="range" min="0" max="100" value="80" /></label>
+      </div>
+      <p id="status" class="status">loading samples…</p>
+    </header>
+
+    <section class="compose">
+      <label for="prompt">PROMPT</label>
+      <input id="prompt" type="text" maxlength="240" value="haunting phonk, whisper hook, punchy kick" />
+      <select id="node" aria-label="Model">
+        <option value="dolphin" selected>dolphin</option>
+        <option value="qwen">qwen</option>
+      </select>
+      <button id="btn-compose" type="button">COMPOSE</button>
+      <button id="btn-preset" type="button">PRESET</button>
+    </section>
+
+    <main class="deck">
+      <section class="lanes" aria-label="Sample lanes">
+        <div class="lane-tools">
+          <h2 id="song-title">Untitled</h2>
+          <button id="btn-rescan" type="button">RESCAN KIT</button>
+          <span id="llm-meta"></span>
+        </div>
+        <div id="lanes"></div>
+      </section>
+
+      <aside class="rack" aria-label="Lyric rack">
+        <div class="rack-head">
+          <h2>LYRICS</h2>
+          <button id="btn-lyrics" type="button">REFRESH</button>
+          <span id="lyric-count"></span>
+        </div>
+        <div class="rack-filters">
+          <input id="lyric-q" type="search" placeholder="search words" autocomplete="off" />
+          <select id="lyric-mood" aria-label="Mood"><option value="">all moods</option></select>
+          <select id="lyric-treatment" aria-label="Treatment"><option value="">all treatments</option></select>
+          <select id="lyric-review" aria-label="Review">
+            <option value="new">new</option>
+            <option value="kept">kept</option>
+            <option value="all">all</option>
+          </select>
+        </div>
+        <p id="lyric-armed" class="armed">pick a take, then place it on a vocal step</p>
+        <button id="btn-place" type="button" disabled>PLACE ON STEP</button>
+        <div id="lyric-list"></div>
+      </aside>
+    </main>
+
+    <footer>
+      <span>SPACE play</span>
+      <span>click a drum step to hit</span>
+      <span>vocal steps take the armed lyric</span>
+      <span>C-4 is the recorded pitch</span>
+      <span>samples only on this deck</span>
+    </footer>
+  </div>
+  <script type="module" src="/rave/app.js"></script>
+</body>
+</html>

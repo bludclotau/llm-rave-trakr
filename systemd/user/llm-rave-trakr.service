@@ -1,0 +1,20 @@
+[Unit]
+Description=LLM Rave Trakr sample deck
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/snerloc/vibe-hub/llm-rave-trakr
+ExecStart=/usr/bin/node scripts/serve-rave.mjs
+Restart=always
+RestartSec=2
+Environment=PORT=3870
+Environment=RAVE_UI=1
+Environment=LLAMA_URL=http://10.1.1.122:8082
+Environment=LLAMA_URL_2=http://10.1.1.122:8081
+Environment=WORDFATORY_HOME=/home/snerloc/vibe-hub/cyberrave-wordfactory
+Environment=LYRIC_AUDIO_ROOT=/home/snerloc/wordfactory-audio/samples
+
+[Install]
+WantedBy=default.target

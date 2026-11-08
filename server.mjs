@@ -14,6 +14,8 @@ import {
   expandSong,
   selectCandidates,
 } from "./public/audio/compose-plan.js";
+import { mergeLyricCatalog } from "./public/audio/lyric-bank.js";
+import { loadLyricBank } from "./scripts/lyric-store.mjs";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(ROOT, "public");
@@ -25,6 +27,7 @@ const XAI_API_KEY = process.env.XAI_API_KEY || "";
 const XAI_BASE_URL = process.env.XAI_BASE_URL || "https://api.x.ai/v1";
 const XAI_MODEL = process.env.XAI_MODEL || "grok-4.7";
 const COMPOSE_TOKENS = 1400;
+const RAVE_UI = process.env.RAVE_UI === "1";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -45,6 +48,26 @@ const MIME = {
 };
 
 let catalog = buildCatalog(SAMPLE_DIR);
+let lyricRecordsAll = [];
+let lyricFiles = new Map();
+let lyricMeta = { ok: false, count: 0, error: RAVE_UI ? null : "lyric bank is off" };
+
+function useCatalog(next) {
+  catalog = mergeLyricCatalog(next, lyricRecordsAll);
+}
+
+async function refreshLyrics() {
+  const loaded = await loadLyricBank();
+  lyricRecordsAll = loaded.records;
+  lyricFiles = loaded.files;
+  lyricMeta = {
+    ok: loaded.ok,
+    count: loaded.records.length,
+    error: loaded.ok ? null : loaded.error,
+  };
+  useCatalog(buildCatalog(SAMPLE_DIR));
+  return lyricMeta;
+}
 
 function samplesPayload() {
   return {
@@ -341,7 +364,7 @@ async function handleUpload(req, res) {
       mime: req.headers["content-type"] || "",
       bytes,
     });
-    catalog = saved.catalog;
+    useCatalog(saved.catalog);
     if (!saved.sample) return json(res, 500, { error: "upload was not catalogued" });
     return json(res, 200, { sample: saved.sample });
   } catch (err) {
@@ -372,6 +395,7 @@ async function handleHealth(_req, res) {
   json(res, 200, {
     ok: nodes.some((node) => node.ok),
     samples: catalog.samples.length,
+    lyrics: lyricMeta.count,
     nodes,
     spacexai: Boolean(XAI_API_KEY),
   });
@@ -384,8 +408,24 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/samples") return json(res, 200, samplesPayload());
     if (req.method === "GET" && url.pathname === "/api/library") return json(res, 200, libraryDigest(catalog));
     if (req.method === "POST" && url.pathname === "/api/samples/rescan") {
-      catalog = buildCatalog(SAMPLE_DIR);
+      useCatalog(buildCatalog(SAMPLE_DIR));
       return json(res, 200, samplesPayload());
+    }
+    if (req.method === "GET" && url.pathname === "/api/lyrics") {
+      return json(res, 200, { ...lyricMeta, records: lyricRecordsAll });
+    }
+    if (req.method === "POST" && url.pathname === "/api/lyrics/refresh") {
+      const meta = await refreshLyrics();
+      return json(res, meta.ok ? 200 : 503, { ...meta, records: lyricRecordsAll });
+    }
+    const lyricAudio = url.pathname.match(/^\/api\/lyrics\/(\d+)\/audio$/);
+    if (req.method === "GET" && lyricAudio) {
+      const file = lyricFiles.get(Number(lyricAudio[1]));
+      if (!file) {
+        res.writeHead(404, { "Content-Type": "text/plain" });
+        return res.end("not found");
+      }
+      return sendFile(res, file);
     }
     if (req.method === "POST" && url.pathname === "/api/samples/upload") return handleUpload(req, res);
     if (req.method === "GET" && url.pathname === "/api/templates") {
@@ -394,6 +434,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && url.pathname === "/api/compose") return handleCompose(req, res, url);
     if (req.method === "POST" && url.pathname === "/api/compose-layer") return handleCompose(req, res, url, true);
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
+      const home = RAVE_UI ? "rave/index.html" : "index.html";
+      return sendFile(res, path.join(PUBLIC, home));
+    }
+    if (req.method === "GET" && RAVE_UI && url.pathname === "/classic") {
       return sendFile(res, path.join(PUBLIC, "index.html"));
     }
 
@@ -413,7 +457,13 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`llm-rave-trakr http://127.0.0.1:${PORT}`);
-  console.log(`samples ${catalog.samples.length}  llama ${LLAMA_URL}`);
-});
+function listen() {
+  server.listen(PORT, "0.0.0.0", () => {
+    const mode = RAVE_UI ? " rave" : "";
+    console.log(`llm-rave-trakr http://127.0.0.1:${PORT}${mode}`);
+    console.log(`samples ${catalog.samples.length}  lyrics ${lyricMeta.count}  llama ${LLAMA_URL}`);
+  });
+}
+
+if (RAVE_UI) refreshLyrics().finally(listen);
+else listen();

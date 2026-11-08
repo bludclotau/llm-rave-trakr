@@ -14,6 +14,35 @@ node server.mjs
 
 Open http://127.0.0.1:3840
 
+## Rave deck
+
+`npm run rave` serves a sample deck on port 3870. Drum lanes and two vocal
+lanes are the whole instrument. There is no FM layer control on that page.
+The classic tracker stays available at `/classic` on the same port.
+
+The lyric rack reads the CyberRave word factory Postgres database through
+the factory's own Python environment (`WORDFATORY_HOME`, default
+`/home/snerloc/vibe-hub/cyberrave-wordfactory`). Audio is streamed from
+`LYRIC_AUDIO_ROOT` (default `/home/snerloc/wordfactory-audio/samples`) and
+only if the file stays inside that directory. Discarded takes are listed
+in the rack and are not offered to compose. A factory sample id is
+`100000` plus the database id.
+
+```sh
+npm run rave
+```
+
+Open http://127.0.0.1:3870
+
+On snerloc the deck is the user service `llm-rave-trakr.service`
+(`systemd/user/llm-rave-trakr.service`). The `snerloc` user has linger
+enabled, so the service starts again after a reboot. The tracker on port
+3840 is a separate service and stays where it is.
+
+```sh
+systemctl --user enable --now llm-rave-trakr.service
+```
+
 ## Compose
 
 Type a prompt (`dusty boom bap at 90bpm`) and hit **COMPOSE**. The server
