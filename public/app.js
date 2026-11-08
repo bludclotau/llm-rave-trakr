@@ -13,7 +13,6 @@ import {
 } from "./audio/instruments.js";
 import { normalizeSampleResponse } from "./audio/sample-response.js";
 import { ChannelStrip, createMasterChain } from "./audio/dsp-strip.js";
-import { channelEuclid, euclidRows, euclidString, normalizeEuclid, STEP_RATES } from "./audio/euclid.js";
 import {
   MAX_USER_SAMPLE_BYTES,
   arrayBufferToBase64,
@@ -23,11 +22,28 @@ import {
   nextUserSampleId,
   userSampleName,
 } from "./audio/user-samples.js";
+import { createLibrary } from "./audio/library.js";
+import {
+  DRUM_CHANNELS,
+  DRUM_ROLES,
+  isDrumChannel,
+  isLayerColumn,
+  isSampleColumn,
+  isSampleLayer,
+  isVoxChannel,
+  layerBase,
+  layerIndex,
+  roleForChannel,
+} from "./audio/channels.js";
+import { highlightSample, renderSampleList } from "./ui/sample-list.js";
+import { createSamplerPanel } from "./ui/sampler-panel.js";
+import { createEuclidPanel } from "./ui/euclid-panel.js";
 
-/* MOD Tracker LLM — pattern editor + Web Audio player + Dolphin compose. */
+/* LLM Rave Trakr — pattern editor + Web Audio player + Dolphin compose. */
 (() => {
   const NOTES = ["C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"];
-  const ROLES = ["kick", "snare", "hat", "openhat", "clap", "perc", "crash", "bass"];
+  const ROLES = DRUM_ROLES;
+  const library = createLibrary();
   const LOWER = { z: 0, s: 1, x: 2, d: 3, c: 4, v: 5, g: 6, b: 7, h: 8, n: 9, j: 10, m: 11 };
   const UPPER = { q: 12, 2: 13, w: 14, 3: 15, e: 16, r: 17, 5: 18, t: 19, 6: 20, y: 21, 7: 22, u: 23 };
 
@@ -52,9 +68,6 @@ import {
   }
 
   const state = {
-    samples: [],
-    byId: new Map(),
-    buffers: new Map(),
     song: null,
     row: 0,
     ch: 0,
@@ -150,9 +163,19 @@ import {
     state.limiter = bus.limiter;
     state.fxBus = bus;
     state.strips = {};
-    for (let ch = 0; ch < 8; ch++) ensureStrip(ch, state.song?.channelFx?.[ch]);
-    state.voices = Array.from({ length: 8 }, (_, ch) => new SampleVoice(ctx, state.strips[ch].input));
+    const n = state.song ? layerBase(state.song) : DRUM_CHANNELS;
+    for (let ch = 0; ch < n; ch++) ensureStrip(ch, state.song?.channelFx?.[ch]);
+    state.voices = Array.from({ length: n }, (_, ch) => new SampleVoice(ctx, state.strips[ch].input));
     return ctx;
+  }
+
+  function ensureSampleVoice(ch) {
+    if (!state.ctx) return null;
+    if (state.voices?.[ch]) return state.voices[ch];
+    const strip = ensureStrip(ch, state.song?.channelFx?.[ch]);
+    if (!state.voices) state.voices = [];
+    state.voices[ch] = new SampleVoice(state.ctx, strip.input);
+    return state.voices[ch];
   }
 
   function ensureStrip(ch, fx) {
@@ -170,7 +193,7 @@ import {
     const bpm = currentBpm();
     for (const key of Object.keys(state.strips)) {
       const ch = Number(key);
-      if (ch >= 8) {
+      if (ch >= layerBase(state.song)) {
         state.strips[ch].disconnect();
         delete state.strips[ch];
         continue;
@@ -187,7 +210,7 @@ import {
   }
 
   function reindexStrips(removedCh) {
-    if (!state.strips || removedCh < 8) return;
+    if (!state.strips || removedCh < layerBase(state.song)) return;
     const next = {};
     for (const [key, strip] of Object.entries(state.strips)) {
       const n = Number(key);
@@ -198,11 +221,12 @@ import {
   }
 
   async function decodeSample(sample) {
-    if (state.buffers.has(sample.id)) return state.buffers.get(sample.id);
+    const cached = library.buffer(sample.id);
+    if (cached) return cached;
     const ctx = await ensureAudio();
     const res = await fetch(sample.url);
     const buf = await ctx.decodeAudioData(await res.arrayBuffer());
-    state.buffers.set(sample.id, buf);
+    library.setBuffer(sample.id, buf);
     return buf;
   }
 
@@ -213,16 +237,16 @@ import {
   // Retrigger policy lives in audio/voice.js. This function only decides
   // note-off vs note-on, and which slots a hat sample steals.
   function playCell(cell, when, ch, role) {
-    const voice = state.voices?.[ch];
+    const voice = state.voices?.[ch] || ensureSampleVoice(ch);
     if (!voice) return;
     if (isNoteOff(cell)) {
       voice.noteOff(when);
       return;
     }
     if (!cell?.sample || !cell.note) return;
-    const sample = resolveCatalogSample(cell.sample, state.song, state.samples);
+    const sample = resolveCatalogSample(cell.sample, state.song, library.list());
     if (!sample) return;
-    const buf = state.buffers.get(sample.id);
+    const buf = library.buffer(sample.id);
     if (!buf) return;
     const now = state.ctx.currentTime;
     if (sample.muteGroup === "hats") {
@@ -235,6 +259,8 @@ import {
     voice.buffer = buf;
     voice.pan = (ch - 3.5) / 8;
     voice.response = channelSampler(state.song, ch);
+    voice.gainTrim = Number(sample.gain) > 0 ? Number(sample.gain) : 1;
+    voice.skipSec = Number(sample.offset) > 0 ? Number(sample.offset) : 0;
     voice.noteOn(when, midi, (cell.volume || 64) / 64);
   }
 
@@ -242,7 +268,7 @@ import {
   // envelope stays in sustain until a "===" cell calls noteOff. A new pitch
   // retriggers inside the worklet (5 ms fade, envelopes restart).
   function playLayerCell(cell, when, ch) {
-    const layer = state.song.layers?.[ch - 8];
+    const layer = state.song.layers?.[layerIndex(state.song, ch)];
     if (!layer || layer.mute) return;
     const voice = state.layerVoices[ch]?.voice;
     if (!voice) return;
@@ -292,8 +318,8 @@ import {
       for (let ch = 0; ch < width; ch++) {
         const cell = pat.data[ch][row];
         if (cell?.effect) applyRowFx(cell, state.nextTime, ch);
-        if (ch < 8 && channelFmId(ch)) playChannelFm(cell, state.nextTime, ch);
-        else if (ch < 8) playCell(cell, state.nextTime, ch, ROLES[ch]);
+        if (isDrumChannel(ch) && channelFmId(ch)) playChannelFm(cell, state.nextTime, ch);
+        else if (isSampleColumn(state.song, ch)) playCell(cell, state.nextTime, ch, roleForChannel(state.song, ch));
         else playLayerCell(cell, state.nextTime, ch);
       }
       paintPlayhead(row);
@@ -322,6 +348,7 @@ import {
 
   async function play() {
     await ensureAudio();
+    syncSampleVoices();
     await preloadUsed();
     await ensureChannelFmVoices();
     await ensureLayerVoices();
@@ -355,7 +382,7 @@ import {
     for (const ch of pat.data) {
       for (const cell of ch) {
         if (!cell?.sample) continue;
-        const sample = resolveCatalogSample(cell.sample, state.song, state.samples);
+        const sample = resolveCatalogSample(cell.sample, state.song, library.list());
         if (!sample || seen.has(sample.id)) continue;
         seen.add(sample.id);
         needed.push(decodeSample(sample));
@@ -367,20 +394,34 @@ import {
   async function preview(sample) {
     await ensureAudio();
     const buf = await decodeSample(sample);
-    const voice = state.voices[7];
-    const responseCh = state.ch < 8 ? state.ch : 7;
+    const voice = state.voices[7] || ensureSampleVoice(7);
+    const responseCh = isSampleColumn(state.song, state.ch) ? state.ch : 7;
     voice.cut(state.ctx.currentTime);
     voice.buffer = buf;
     voice.pan = null;
     voice.response = channelSampler(state.song, responseCh);
-    voice.noteOn(state.ctx.currentTime, 60, 0.9);
+    voice.gainTrim = Number(sample.gain) > 0 ? Number(sample.gain) : 1;
+    voice.skipSec = Number(sample.offset) > 0 ? Number(sample.offset) : 0;
+    voice.noteOn(state.ctx.currentTime, sample.role === "bass" ? 36 : 60, 0.9);
+  }
+
+  function syncSampleVoices() {
+    if (!state.ctx) return;
+    const n = layerBase(state.song);
+    for (let ch = 0; ch < n; ch++) ensureSampleVoice(ch);
   }
 
   function applySong(song) {
     disposeLayerVoices();
     disposeChannelFm();
+    const kept = library.rememberedEntries();
+    const seen = new Set((song.userSamples || []).map((entry) => Number(entry.id)));
+    if (kept.length) {
+      song.userSamples = [...(song.userSamples || []), ...kept.filter((entry) => !seen.has(Number(entry.id)))];
+    }
+    for (const entry of song.userSamples || []) if (entry?.data) library.remember(entry);
     syncUserSamples(song);
-    migrateSong(song, state.samples);
+    migrateSong(song, library.list());
     const width = song.patterns?.[0]?.data?.length || 8;
     if (state.ch >= width) state.ch = Math.max(0, width - 1);
     const rows = song.patterns?.[0]?.rows || song.rows || 16;
@@ -396,35 +437,24 @@ import {
     highlightKit();
     syncChannelInstrument();
     resetStripsForSong();
+    syncSampleVoices();
     paintStrip();
   }
 
   function renderSamples() {
-    const root = $("sample-list");
-    root.innerHTML = "";
-    $("sample-count").textContent = String(state.samples.length);
-    const groups = {};
-    for (const s of state.samples) (groups[s.role] ||= []).push(s);
-    for (const role of [...ROLES, "ride", "other"]) {
-      const list = groups[role];
-      if (!list?.length) continue;
-      const h = document.createElement("div");
-      h.className = "cat";
-      h.textContent = role.toUpperCase();
-      root.appendChild(h);
-      for (const s of list) {
-        const el = document.createElement("div");
-        el.className = "sample";
-        el.dataset.id = s.id;
-        el.innerHTML = `<span class="id">${hex2(s.id)}</span><span class="name">${s.name}</span>`;
-        el.addEventListener("click", () => {
-          state.selectedSample = s.id;
-          highlightKit();
-          preview(s);
-        });
-        root.appendChild(el);
-      }
-    }
+    renderSampleList({
+      root: $("sample-list"),
+      countEl: $("sample-count"),
+      samples: library.list(),
+      roles: ROLES,
+      hex2,
+      onPick: (sample) => {
+        state.selectedSample = sample.id;
+        highlightKit();
+        preview(sample);
+      },
+    });
+    highlightKit();
   }
 
   function highlightKit() {
@@ -448,14 +478,21 @@ import {
     const hash = document.createElement("span");
     hash.textContent = "#";
     heads.appendChild(hash);
-    for (let i = 0; i < 8 && i < width; i++) {
+    for (let i = 0; i < DRUM_CHANNELS && i < width; i++) {
       const span = document.createElement("span");
       span.dataset.ch = String(i);
       span.textContent = channelHeadLabel(i);
       heads.appendChild(span);
     }
+    const vox = Math.min(voxCountSafe(), Math.max(0, width - DRUM_CHANNELS));
+    for (let i = 0; i < vox; i++) {
+      const span = document.createElement("span");
+      span.dataset.ch = String(DRUM_CHANNELS + i);
+      span.textContent = `CH${DRUM_CHANNELS + i + 1} VOX`;
+      heads.appendChild(span);
+    }
     const layers = state.song.layers || [];
-    for (let i = 0; i < width - 8; i++) heads.appendChild(layerHead(layers[i], i));
+    for (let i = 0; i < layers.length; i++) heads.appendChild(layerHead(layers[i], i));
     const grid = $("grid");
     grid.innerHTML = "";
     for (let r = 0; r < pat.rows; r++) {
@@ -468,7 +505,7 @@ import {
         const cell = pat.data[c][r];
         const el = document.createElement("div");
         el.className = "cell";
-        if (c >= 8 && layers[c - 8]?.mute) el.classList.add("muted");
+        if (isLayerColumn(state.song, c) && layers[layerIndex(state.song, c)]?.mute) el.classList.add("muted");
         el.dataset.r = r;
         el.dataset.c = c;
         el.innerHTML = renderCell(cell);
@@ -489,7 +526,7 @@ import {
     wrap.dataset.layer = String(index);
     const name = document.createElement("span");
     name.className = "ch-name";
-    name.textContent = `CH${9 + index} ${(layer?.name || "FM").toUpperCase()}`;
+    name.textContent = `CH${layerBase(state.song) + index + 1} ${(layer?.name || "FM").toUpperCase()}`;
     const actions = document.createElement("div");
     actions.className = "ch-actions";
     actions.append(
@@ -535,9 +572,12 @@ import {
     if (el) el.innerHTML = renderCell(state.song.patterns[0].data[c][r]);
   }
 
+  function voxCountSafe() {
+    return Math.max(0, layerBase(state.song) - DRUM_CHANNELS);
+  }
+
   function isLayerChannel(ch) {
-    const width = state.song?.patterns?.[0]?.data?.length || 8;
-    return ch >= 8 && ch < width;
+    return isLayerColumn(state.song, ch) && !isSampleLayer(state.song, ch);
   }
 
   function selectCell() {
@@ -581,10 +621,10 @@ import {
     if (fmKeysOn()) {
       auditionFm(midi, velocity, 0);
     } else {
-      const sample = resolveCatalogSample(cell.sample, state.song, state.samples);
+      const sample = resolveCatalogSample(cell.sample, state.song, library.list());
       if (sample) {
         ensureAudio().then(() => decodeSample(sample)).then(() => {
-          playCell(cell, state.ctx.currentTime, state.ch, ROLES[state.ch]);
+          playCell(cell, state.ctx.currentTime, state.ch, roleForChannel(state.song, state.ch));
         });
       }
     }
@@ -854,12 +894,18 @@ import {
   async function ensureLayerVoice(ch) {
     const existing = state.layerVoices[ch];
     if (existing?.ready) return existing.ready;
-    const layer = state.song.layers?.[ch - 8];
+    const layer = state.song.layers?.[layerIndex(state.song, ch)];
     if (!layer) return null;
     await ensureAudio();
     const inst = (state.song.instruments || []).find((item) => item.id === layer.instrumentId);
     if (!inst) return null;
     const strip = ensureStrip(ch, state.song.channelFx?.[ch]);
+    if (inst.type === "sample") {
+      const voice = ensureSampleVoice(ch);
+      const slot = { voice, ready: Promise.resolve({ voice }), dropped: false };
+      state.layerVoices[ch] = slot;
+      return slot.ready;
+    }
     const voice = new FMVoice(state.ctx, strip.input);
     voice.setPreset(resolveSound(inst));
     const slot = { voice, ready: null, dropped: false };
@@ -876,7 +922,8 @@ import {
 
   async function ensureLayerVoices() {
     const n = state.song?.layers?.length || 0;
-    for (let i = 0; i < n; i++) await ensureLayerVoice(8 + i);
+    const base = layerBase(state.song);
+    for (let i = 0; i < n; i++) await ensureLayerVoice(base + i);
   }
 
   function hitsFromChannel(ch) {
@@ -943,13 +990,13 @@ import {
     const layer = state.song.layers?.[index];
     if (!layer) return;
     layer.mute = !layer.mute;
-    if (layer.mute && state.ctx) state.layerVoices[8 + index]?.voice.cut(state.ctx.currentTime);
+    if (layer.mute && state.ctx) state.layerVoices[layerBase(state.song) + index]?.voice.cut(state.ctx.currentTime);
     renderGrid();
   }
 
   function removeLayer(index) {
     const song = state.song;
-    const ch = 8 + index;
+    const ch = layerBase(song) + index;
     const layer = song.layers?.[index];
     if (!layer || !song.patterns[0].data[ch]) return;
     dropLayerVoice(ch);
@@ -966,6 +1013,8 @@ import {
       nextFx[n < ch ? n : n - 1] = fx;
     }
     song.channelFx = nextFx;
+    song.channelSampler = shiftChannelMap(song.channelSampler, ch);
+    song.channelEuclid = shiftChannelMap(song.channelEuclid, ch);
     const nextVoices = {};
     for (const [key, slot] of Object.entries(state.layerVoices)) {
       const n = Number(key);
@@ -973,6 +1022,11 @@ import {
       else if (n > ch) nextVoices[n - 1] = slot;
     }
     state.layerVoices = nextVoices;
+    if (state.voices) {
+      const nextSampleVoices = state.voices.slice(0, ch);
+      for (let n = ch + 1; n < state.voices.length; n++) nextSampleVoices[n - 1] = state.voices[n];
+      state.voices = nextSampleVoices;
+    }
     reindexStrips(ch);
     song.channels = song.patterns[0].data.length;
     if (state.ch >= song.channels) state.ch = song.channels - 1;
@@ -980,11 +1034,37 @@ import {
     selectCell();
   }
 
+  function shiftChannelMap(table, removed) {
+    const next = {};
+    for (const [key, value] of Object.entries(table || {})) {
+      const n = Number(key);
+      if (!Number.isFinite(n) || n === removed) continue;
+      next[n < removed ? n : n - 1] = value;
+    }
+    return next;
+  }
+
   function auditionLayer(ch, midi, velocity, holdOff) {
     const ticket = state.fmTicket;
     ensureLayerVoice(ch).then((slot) => {
       if (!slot || ticket !== state.fmTicket) return;
       const t = state.ctx.currentTime + 0.01;
+      if (isSampleLayer(state.song, ch)) {
+        const column = state.song.patterns[0].data[ch] || [];
+        const cell = column.find((item) => item?.sample && item.note && !isNoteOff(item));
+        const sample = resolveCatalogSample(cell?.sample, state.song, library.list());
+        const start = () => {
+          if (!sample || !slot.voice) return;
+          slot.voice.buffer = library.buffer(sample.id);
+          slot.voice.gainTrim = Number(sample.gain) > 0 ? Number(sample.gain) : 1;
+          slot.voice.skipSec = Number(sample.offset) > 0 ? Number(sample.offset) : 0;
+          slot.voice.response = channelSampler(state.song, ch);
+          slot.voice.noteOn(t, midi, velocity);
+        };
+        if (sample && !library.buffer(sample.id)) decodeSample(sample).then(start);
+        else start();
+        return;
+      }
       slot.voice.noteOn(t, midi, velocity);
       if (holdOff > 0) slot.voice.noteOff(t + holdOff);
     }).catch((err) => {
@@ -994,7 +1074,7 @@ import {
   }
 
   function auditionLayerChannel(index) {
-    const ch = 8 + index;
+    const ch = layerBase(state.song) + index;
     const column = state.song.patterns[0].data[ch] || [];
     const noteCell = column.find((cell) => cell?.note && !isNoteOff(cell));
     auditionLayer(ch, midiOf(noteCell?.note) ?? 60, 0.8, 0.7);
@@ -1015,10 +1095,10 @@ import {
     state.instrumentSync = true;
     const ch = state.ch;
     const hint = $("ch-instrument-hint");
-    if (ch > 7) {
+    if (!isDrumChannel(ch)) {
       sel.value = "";
       sel.disabled = true;
-      if (hint) hint.textContent = "layer channel";
+      if (hint) hint.textContent = isVoxChannel(state.song, ch) ? "vocal channel" : "layer channel";
     } else {
       sel.disabled = false;
       const id = channelFmId(ch);
@@ -1160,7 +1240,7 @@ import {
       if (state.instrumentSync) return;
       const presetId = sel.value;
       sel.blur();
-      if (state.ch > 7) {
+      if (!isDrumChannel(state.ch)) {
         syncChannelInstrument();
         return;
       }
@@ -1188,10 +1268,11 @@ import {
     const data = song.patterns[0].data;
     if (data.length < 8) throw new Error("pattern is missing drum channels");
     syncUserSamples(song);
-    migrateSong(song, state.samples);
+    migrateSong(song, library.list());
     song.rows = song.patterns[0].rows || data[0]?.length || 16;
     song.channels = data.length;
-    while (song.layers.length < data.length - 8) {
+    const base = layerBase(song);
+    while (song.layers.length < data.length - base) {
       const index = song.layers.length;
       const used = new Set(song.layers.map((layer) => layer.instrumentId));
       let inst = song.instruments.find((item) => item?.type === "fm" && item.boundChannel == null && !used.has(item.id));
@@ -1296,8 +1377,8 @@ import {
     if (effect) effect.value = String(cell?.effect || 0);
     if (param) param.value = String(cell?.param || 0);
     state.fxSync = false;
-    paintSampler();
-    paintEuclid();
+    sampler.paint();
+    euclidPanel.paint();
   }
 
   function writeStripParam(key, value) {
@@ -1353,70 +1434,13 @@ import {
     paintStrip();
   }
 
-  const SAMPLER_FIELDS = [
-    ["sam-level", "level"],
-    ["sam-start", "start"],
-    ["sam-end", "end"],
-    ["sam-hold", "envShape"],
-    ["sam-amp", "velAmp"],
-    ["sam-tone", "velTone"],
-    ["sam-vstart", "velStart"],
-    ["sam-attack", "velAttack"],
-    ["sam-decay", "velDecay"],
-  ];
-
-  function paintSampler() {
-    const label = $("sam-channel");
-    if (!label || !state.song) return;
-    const ch = state.ch;
-    const drum = ch < 8;
-    label.textContent = drum ? `CH${ch + 1}` : "LAYER";
-    const response = drum ? channelSampler(state.song, ch) : normalizeSampleResponse(null);
-    state.samSync = true;
-    for (const [id, key] of SAMPLER_FIELDS) {
-      const el = $(id);
-      if (!el) continue;
-      el.value = String(response[key]);
-      el.disabled = !drum;
-    }
-    const user = drum ? channelUserSample(ch) : null;
-    const nameEl = $("sam-name");
-    if (nameEl) nameEl.textContent = user ? `${user.name} · #${user.id}` : "";
-    for (const id of ["sam-load", "sam-stop"]) {
-      const el = $(id);
-      if (el) el.disabled = !drum;
-    }
-    const clearBtn = $("sam-clear");
-    if (clearBtn) clearBtn.disabled = !drum || !user;
-    const hint = $("sam-hint");
-    if (hint) {
-      hint.textContent = !drum
-        ? "sample response is per drum channel"
-        : channelFmId(ch)
-          ? "stored for this channel · playback is FM"
-          : "GCD-8 velocity response";
-    }
-    state.samSync = false;
-  }
-
-  function writeSampler(key, value) {
-    if (!state.song || state.ch >= 8) return;
-    const ch = state.ch;
-    state.song.channelSampler ||= {};
-    const next = normalizeSampleResponse({ ...channelSampler(state.song, ch), [key]: Number(value) });
-    state.song.channelSampler[ch] = next;
-    if (state.voices?.[ch]) state.voices[ch].response = next;
-  }
-
-  // ---- user samples (gcd8.sampler~ LOAD / CLEAR / STOP) -------------------
-
-  /** Make state.samples match song.userSamples. Kit rows are untouched. */
+  /** Make the library match song.userSamples. Kit rows are untouched. */
   function syncUserSamples(song) {
-    const had = state.samples.filter((s) => s.user).map((s) => s.id);
-    state.samples = mergeUserSamples(state.samples, song?.userSamples);
-    state.byId = new Map(state.samples.map((s) => [s.id, s]));
-    for (const id of had) if (!state.byId.has(id)) state.buffers.delete(id);
-    if (!state.byId.has(state.selectedSample)) state.selectedSample = 1;
+    const had = library.list().filter((sample) => sample.user).map((sample) => Number(sample.id));
+    const kit = library.list().filter((sample) => !sample.user);
+    library.replaceAll(mergeUserSamples(kit, song?.userSamples));
+    for (const id of had) if (!library.get(id)) library.dropBuffer(id);
+    if (!library.get(state.selectedSample)) state.selectedSample = library.list()[0]?.id || 1;
     if (document.getElementById("sample-list")) renderSamples();
   }
 
@@ -1429,13 +1453,17 @@ import {
     syncUserSamples(song);
   }
 
+  function isLoadedSample(id) {
+    if (isUserSampleId(id)) return true;
+    return (state.song?.userSamples || []).some((item) => Number(item.id) === Number(id));
+  }
+
   function channelUserSample(ch) {
     const column = state.song?.patterns?.[0]?.data?.[ch] || [];
     for (const cell of column) {
-      if (isUserSampleId(cell?.sample)) {
-        const entry = state.song.userSamples?.find((item) => Number(item.id) === Number(cell.sample));
-        if (entry) return entry;
-      }
+      if (!isLoadedSample(cell?.sample)) continue;
+      const entry = state.song.userSamples?.find((item) => Number(item.id) === Number(cell.sample));
+      if (entry) return entry;
     }
     return null;
   }
@@ -1448,231 +1476,6 @@ import {
   function status(text, kind) {
     $("status").textContent = text;
     $("status").className = kind ? `status ${kind}` : "status";
-  }
-
-  async function loadChannelSample(file) {
-    const ch = state.ch;
-    if (!state.song || ch >= 8 || !file) return;
-    if (file.size > MAX_USER_SAMPLE_BYTES) {
-      status(`${file.name} is over ${MAX_USER_SAMPLE_BYTES / 1048576} MB`, "err");
-      return;
-    }
-    try {
-      const ctx = await ensureAudio();
-      const bytes = await file.arrayBuffer();
-      const buf = await ctx.decodeAudioData(bytes.slice(0));
-      const song = state.song;
-      const role = ROLES[ch];
-      const column = song.patterns[0].data[ch];
-      const prior = column.find((cell) => cell?.sample && cell.note && cell.note !== NOTE_OFF);
-      let fallback = Number(song.kit?.[role]) || 0;
-      if (prior) {
-        const old = song.userSamples?.find((item) => Number(item.id) === Number(prior.sample));
-        fallback = old ? Number(old.fallback) || 0 : Number(prior.sample) || fallback;
-      }
-      const id = nextUserSampleId(state.samples, song.userSamples);
-      song.userSamples = [
-        ...(song.userSamples || []),
-        {
-          id,
-          name: userSampleName(file.name),
-          mime: file.type && file.type.startsWith("audio/") ? file.type : "audio/wav",
-          data: arrayBufferToBase64(bytes),
-          role,
-          fallback,
-        },
-      ];
-      syncUserSamples(song);
-      state.buffers.set(id, buf);
-      song.kit ||= {};
-      song.kit[role] = id;
-      let placed = 0;
-      for (const cell of column) {
-        if (cell?.note && cell.note !== NOTE_OFF) {
-          cell.sample = id;
-          placed += 1;
-        }
-      }
-      pruneUserSamples(song);
-      state.selectedSample = id;
-      paintColumn(ch);
-      highlightKit();
-      paintSampler();
-      status(
-        placed
-          ? `${userSampleName(file.name)} loaded on CH${ch + 1} · ${placed} hit${placed === 1 ? "" : "s"} now use it`
-          : `${userSampleName(file.name)} loaded · press a note key on CH${ch + 1}`,
-        "ok",
-      );
-      const entry = state.byId.get(id);
-      if (entry) preview(entry);
-    } catch (err) {
-      status(`could not load ${file.name}: ${err.message || err}`, "err");
-    }
-  }
-
-  /** Put the channel's kit sample back. A cell with no kit sample to return to goes silent. */
-  function clearChannelSample() {
-    const ch = state.ch;
-    const song = state.song;
-    if (!song || ch >= 8) return;
-    const role = ROLES[ch];
-    const column = song.patterns[0].data[ch];
-    const ids = new Set(column.filter((cell) => isUserSampleId(cell?.sample)).map((cell) => Number(cell.sample)));
-    if (isUserSampleId(song.kit?.[role])) ids.add(Number(song.kit[role]));
-    if (!ids.size) {
-      status(`CH${ch + 1} has no loaded sample`);
-      return;
-    }
-    state.voices?.[ch]?.cut(state.ctx?.currentTime ?? 0);
-    for (const id of ids) {
-      const entry = song.userSamples?.find((item) => Number(item.id) === id);
-      const fallback = Number(entry?.fallback) || 0;
-      for (const cell of column) {
-        if (Number(cell?.sample) !== id) continue;
-        if (fallback) cell.sample = fallback;
-        else {
-          cell.note = null;
-          cell.sample = 0;
-          cell.volume = 0;
-        }
-      }
-      if (Number(song.kit?.[role]) === id) {
-        if (fallback) song.kit[role] = fallback;
-        else delete song.kit[role];
-      }
-      if (state.selectedSample === id) state.selectedSample = fallback || 1;
-    }
-    pruneUserSamples(song);
-    paintColumn(ch);
-    highlightKit();
-    paintSampler();
-    status(`CH${ch + 1} back on the kit sample`, "ok");
-  }
-
-  function stopChannelSample() {
-    if (!state.ctx || !state.voices || state.ch >= 8) return;
-    const t = state.ctx.currentTime;
-    state.voices[state.ch].cut(t);
-    // A sample audition plays on the bass voice. Leave that voice alone while
-    // the pattern runs, because it is also CH8.
-    if (!state.playing) state.voices[7].cut(t);
-  }
-
-  // ---- euclidean sequencer (gcd8.seq base pattern) ------------------------
-
-  const EUCLID_FIELDS = [
-    ["eu-length", "length"],
-    ["eu-hits", "hits"],
-    ["eu-shift", "shift"],
-    ["eu-rate", "stepRate"],
-  ];
-
-  function paintEuclid() {
-    const label = $("eu-channel");
-    if (!label || !state.song) return;
-    const ch = state.ch;
-    const drum = ch < 8;
-    const cfg = drum ? channelEuclid(state.song, ch) : normalizeEuclid(null);
-    label.textContent = drum ? `CH${ch + 1}` : "LAYER";
-    state.euSync = true;
-    for (const [id, key] of EUCLID_FIELDS) {
-      const el = $(id);
-      if (!el) continue;
-      el.value = String(cfg[key]);
-      el.disabled = !drum;
-    }
-    $("eu-hits").max = String(cfg.length);
-    $("eu-shift").max = String(Math.max(0, cfg.length - 1));
-    $("eu-generate").disabled = !drum;
-    const rows = state.song.patterns[0].rows;
-    $("eu-preview").textContent = drum ? euclidString(cfg, rows) : "";
-    const stride = STEP_RATES[cfg.stepRate];
-    $("eu-hint").textContent = !drum
-      ? "euclid is per drum channel"
-      : channelFmId(ch)
-        ? "GENERATE rewrites this channel's notes · playback is FM"
-        : `${cfg.hits} of ${cfg.length} steps · ${stride} row${stride === 1 ? "" : "s"} per step`;
-    state.euSync = false;
-  }
-
-  function writeEuclid(key, value) {
-    if (!state.song || state.ch >= 8) return;
-    const ch = state.ch;
-    state.song.channelEuclid ||= {};
-    const raw = key === "stepRate" ? value : Number(value);
-    state.song.channelEuclid[ch] = normalizeEuclid({ ...channelEuclid(state.song, ch), [key]: raw });
-    paintEuclid();
-  }
-
-  /**
-   * Write the cycle onto this channel. Hit rows take the note, sample, and
-   * volume of the channel's first existing hit, else the role default. Other
-   * rows lose note, sample, and volume. effect and param stay, so FX automation
-   * survives a rewrite.
-   */
-  function generateEuclid() {
-    const song = state.song;
-    const ch = state.ch;
-    if (!song || ch >= 8) return;
-    const pat = song.patterns[0];
-    const column = pat.data[ch];
-    const role = ROLES[ch];
-    const hits = euclidRows(channelEuclid(song, ch), pat.rows);
-    const proto = column.find((cell) => cell?.note && cell.note !== NOTE_OFF);
-    const note = proto?.note || (role === "bass" ? "C-1" : "C-4");
-    const sample = proto?.sample || song.kit?.[role] || state.selectedSample || 1;
-    const volume = proto?.volume || (role === "hat" ? 40 : 64);
-    for (let r = 0; r < pat.rows; r++) {
-      const cell = column[r] || (column[r] = emptyCell());
-      if (hits[r]) {
-        cell.note = note;
-        cell.sample = sample;
-        cell.volume = volume;
-      } else {
-        cell.note = null;
-        cell.sample = 0;
-        cell.volume = 0;
-      }
-    }
-    pruneUserSamples(song);
-    paintColumn(ch);
-    const cfg = channelEuclid(song, ch);
-    status(`E(${cfg.hits},${cfg.length}) written to CH${ch + 1}`, "ok");
-  }
-
-  function setupEuclid() {
-    for (const [id, key] of EUCLID_FIELDS) {
-      const el = $(id);
-      if (!el) continue;
-      el.addEventListener("change", () => {
-        if (state.euSync) return;
-        writeEuclid(key, el.value);
-      });
-    }
-    $("eu-generate")?.addEventListener("click", generateEuclid);
-    paintEuclid();
-  }
-
-  function setupSampler() {
-    $("sam-load")?.addEventListener("click", () => $("sam-file").click());
-    $("sam-file")?.addEventListener("change", () => {
-      const file = $("sam-file").files?.[0];
-      $("sam-file").value = "";
-      if (file) loadChannelSample(file);
-    });
-    $("sam-clear")?.addEventListener("click", clearChannelSample);
-    $("sam-stop")?.addEventListener("click", stopChannelSample);
-    for (const [id, key] of SAMPLER_FIELDS) {
-      const el = $(id);
-      if (!el) continue;
-      el.addEventListener("input", () => {
-        if (state.samSync) return;
-        writeSampler(key, el.value);
-      });
-      el.addEventListener("change", () => el.blur());
-    }
-    paintSampler();
   }
 
   function refreshDelayTimes() {
@@ -1690,8 +1493,22 @@ import {
     setupFmPanel();
     setupChannelInstrument();
     setupStrip();
-    setupSampler();
-    setupEuclid();
+    sampler.setup();
+    euclidPanel.setup();
+    $("btn-rescan")?.addEventListener("click", async () => {
+      status("rescanning samples…", "busy");
+      try {
+        const res = await fetch("/api/samples/rescan", { method: "POST" });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || "rescan failed");
+        library.replaceKit(body.samples || []);
+        if (state.song) syncUserSamples(state.song);
+        else renderSamples();
+        status(`${library.list().length} samples`, "ok");
+      } catch (err) {
+        status(String(err.message || err), "err");
+      }
+    });
     $("btn-play").addEventListener("click", play);
     $("btn-stop").addEventListener("click", stop);
     $("btn-compose").addEventListener("click", () => compose(false));
@@ -1731,13 +1548,16 @@ import {
       ]);
       const samples = await samplesRes.json();
       const health = await healthRes.json();
-      state.samples = samples.samples || [];
-      state.byId = new Map(state.samples.map((s) => [s.id, s]));
-      if (state.song) migrateSong(state.song, state.samples);
+      library.replaceKit(samples.samples || []);
+      if (state.song) {
+        migrateSong(state.song, library.list());
+        syncUserSamples(state.song);
+      }
       renderSamples();
       const dol = health.nodes?.find((n) => n.name === "dolphin");
+      const count = library.list().length;
       $("status").textContent = dol?.ok
-        ? `dolphin ready · ${state.samples.length} samples`
+        ? `dolphin ready · ${count} samples`
         : `dolphin offline · ${dol?.error || "check 10.1.1.122:8082"}`;
       $("status").className = dol?.ok ? "status ok" : "status err";
       $("prompt").value = "dusty boom bap hip hop at 90bpm, punchy kick, snappy snare";
@@ -1746,6 +1566,44 @@ import {
       $("status").textContent = String(err.message || err);
       $("status").className = "status err";
     }
+  }
+
+  const panelApi = {
+    $,
+    state,
+    library,
+    NOTE_OFF,
+    MAX_USER_SAMPLE_BYTES,
+    isSampleColumn,
+    isVoxChannel,
+    channelSampler,
+    normalizeSampleResponse,
+    channelUserSample,
+    isLoadedSample,
+    roleForChannel,
+    userSampleName,
+    nextUserSampleId,
+    arrayBufferToBase64,
+    ensureAudio,
+    syncUserSamples,
+    pruneUserSamples,
+    paintColumn,
+    highlightKit,
+    preview,
+    status,
+    emptyCell,
+    channelFmId,
+  };
+  const sampler = createSamplerPanel(panelApi);
+  const euclidPanel = createEuclidPanel(panelApi);
+
+  if (new URLSearchParams(location.search).get("e2e") === "1") {
+    window.__tracker = {
+      get song() { return state.song; },
+      library() { return library.list(); },
+      load(song) { loadProject(song); },
+      snapshot() { return structuredClone(state.song); },
+    };
   }
 
   boot();

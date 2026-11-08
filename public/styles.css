@@ -229,6 +229,12 @@ select, .compose button {
   color: var(--dim); position: sticky; top: 0; background: var(--panel);
   border-bottom: 1px solid var(--line);
 }
+.samples h2 button {
+  margin-left: 8px; font: inherit; letter-spacing: 0.08em; font-size: 10px;
+  color: var(--dim); background: transparent; border: 1px solid var(--line);
+  padding: 2px 6px; cursor: pointer;
+}
+.samples h2 button:hover { border-color: var(--accent); color: var(--accent); }
 .cat { padding: 8px 12px 4px; color: var(--accent); font-size: 11px; letter-spacing: 0.08em; }
 .sample {
   display: flex; gap: 8px; padding: 4px 12px; cursor: pointer; color: var(--dim);
